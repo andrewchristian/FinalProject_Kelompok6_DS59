@@ -1,0 +1,28 @@
+,importance
+model_year,0.3618358
+milage,0.1606512
+model_te,0.11358159
+horsepower,0.056371767
+cylinder,0.032350246
+milage_per_year,0.028434249
+engine_size,0.019940235
+hp_per_cylinder,0.019624185
+cylinder_missing,0.017437652
+hybrid,0.01712598
+transmission_speed,0.014955345
+fuel_type_Unknown,0.014814448
+accident,0.014609518
+brand_te,0.014447795
+transmission_type_DCT,0.0126380855
+hp_per_liter,0.012276894
+transmission_type_Manual,0.011225737
+fuel_type_Gasoline,0.010432113
+transmission_type_Unknown,0.009482461
+turbo,0.008912251
+ext_col_freq,0.00791201
+int_col_freq,0.007577464
+transmission_type_CVT,0.0073007415
+fuel_type_Hybrid,0.007184829
+fuel_type_E85 Flex Fuel,0.0066731167
+clean_title,0.006502164
+fuel_type_Plug-In Hybrid,0.005702099
