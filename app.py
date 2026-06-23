@@ -440,6 +440,24 @@ elif page.startswith("📊"):
             fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=380)
             st.plotly_chart(fig, width="stretch")
 
+        c5, c6 = st.columns(2)
+        with c5:
+            fig = px.histogram(
+                eda, x="cylinder", nbins=20, color_discrete_sequence=["#9D4EDD"],
+                template=PLOTLY_TEMPLATE, title="Distribusi Jumlah Silinder",
+            )
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=380)
+            st.plotly_chart(fig, width="stretch")
+        with c6:
+            trans_speed_data = eda[eda["transmission_speed"] > 0]
+            fig = px.histogram(
+                trans_speed_data, x="transmission_speed", nbins=15,
+                color_discrete_sequence=["#4D96FF"],
+                template=PLOTLY_TEMPLATE, title="Distribusi Jumlah Percepatan Transmisi",
+            )
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=380)
+            st.plotly_chart(fig, width="stretch")
+
     with t2:
         c1, c2 = st.columns(2)
         with c1:
@@ -493,14 +511,54 @@ elif page.startswith("📊"):
             fig.update_layout(showlegend=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=380)
             st.plotly_chart(fig, width="stretch")
 
-        avg_price_fuel = eda.groupby("fuel_type")["price"].median().sort_values(ascending=False).reset_index()
-        fig = px.bar(
-            avg_price_fuel, x="fuel_type", y="price",
-            color="price", color_continuous_scale=SEQ_SCALE,
-            template=PLOTLY_TEMPLATE, title="Median Harga per Jenis Bahan Bakar",
+        vc_trans = eda["transmission_type"].value_counts().reset_index()
+        vc_trans.columns = ["transmission_type", "count"]
+        fig = px.pie(
+            vc_trans, names="transmission_type", values="count", hole=0.5,
+            color_discrete_sequence=CATEGORICAL_SCALE,
+            template=PLOTLY_TEMPLATE, title="Komposisi Tipe Transmisi",
         )
-        fig.update_layout(coloraxis_showscale=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=400)
+        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", height=400)
         st.plotly_chart(fig, width="stretch")
+
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        st.markdown("#### Distribusi Teknologi Mesin")
+        tech_counts = pd.DataFrame({
+            "Teknologi": ["Turbo", "Hybrid / Electric"],
+            "Jumlah": [
+                int(eda["turbo"].sum()),
+                int(eda["hybrid"].sum()),
+            ],
+            "Tidak Ada": [
+                int((eda["turbo"] == 0).sum()),
+                int((eda["hybrid"] == 0).sum()),
+            ],
+        })
+        c_tech1, c_tech2 = st.columns(2)
+        with c_tech1:
+            turbo_vc = pd.DataFrame({
+                "Status": ["Turbo", "Non-Turbo"],
+                "Jumlah": [int(eda["turbo"].sum()), int((eda["turbo"] == 0).sum())],
+            })
+            fig = px.pie(
+                turbo_vc, names="Status", values="Jumlah", hole=0.5,
+                color_discrete_sequence=[RED, MUTED],
+                template=PLOTLY_TEMPLATE, title="Proporsi Turbo",
+            )
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", height=320)
+            st.plotly_chart(fig, width="stretch")
+        with c_tech2:
+            hybrid_vc = pd.DataFrame({
+                "Status": ["Hybrid / Electric", "Konvensional"],
+                "Jumlah": [int(eda["hybrid"].sum()), int((eda["hybrid"] == 0).sum())],
+            })
+            fig = px.pie(
+                hybrid_vc, names="Status", values="Jumlah", hole=0.5,
+                color_discrete_sequence=[GREEN, MUTED],
+                template=PLOTLY_TEMPLATE, title="Proporsi Hybrid / Electric",
+            )
+            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", height=320)
+            st.plotly_chart(fig, width="stretch")
 
     with t4:
         sel_brand = st.selectbox("Pilih Brand", sorted(eda["brand"].unique()), index=0)
