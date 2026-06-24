@@ -292,7 +292,6 @@ page = st.sidebar.radio(
         "🏠  Beranda",
         "📊  Jelajahi Data",
         "🧮  Prediksi Harga",
-        "📈  Performa Model",
         "ℹ️  Tentang Proyek",
     ],
     label_visibility="collapsed",
@@ -727,91 +726,6 @@ elif page.startswith("🧮"):
                 """,
                 unsafe_allow_html=True,
             )
-
-# PAGE: PERFORMA MODEL
-elif page.startswith("📈"):
-    st.markdown("## 📈 Performa Model")
-    st.caption("Model final: XGBoost (tuned) dipilih dari 4 kandidat algoritma berdasarkan 5 fold cross validation.")
-
-    c1, c2, c3, c4 = st.columns(4)
-    perf_cards = [
-        ("R² Training", f"0.7646"),
-        ("R² Validasi", f"0.7217"),
-        ("RMSE Validasi", f"$24,940"),
-        ("MAE Validasi", f"$12,514"),
-    ]
-    for col, (label, val) in zip([c1, c2, c3, c4], perf_cards):
-        col.markdown(
-            f'<div class="metric-card"><div class="label">{label}</div><div class="value">{val}</div></div>',
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    left, right = st.columns([1.2, 1])
-
-    with left:
-        st.markdown("#### Actual vs Predicted")
-        val_pred = load_val_predictions()
-        fig = px.scatter(
-            val_pred, x="actual", y="predicted", opacity=0.35,
-            color_discrete_sequence=[RED], template=PLOTLY_TEMPLATE,
-        )
-        max_val = max(val_pred["actual"].max(), val_pred["predicted"].max())
-        fig.add_trace(go.Scatter(
-            x=[0, max_val], y=[0, max_val], mode="lines",
-            line=dict(color=GOLD, dash="dash"), name="Prediksi Sempurna",
-        ))
-        fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=420,
-            xaxis_title="Harga Aktual ($)", yaxis_title="Harga Prediksi ($)",
-        )
-        st.plotly_chart(fig, width="stretch")
-
-    with right:
-        st.markdown("#### Feature Importance (Top 12)")
-        fi = load_feature_importance().head(12).iloc[::-1]
-        fi.index = [friendly(i) for i in fi.index]
-        fig = px.bar(
-            fi, x="importance", y=fi.index, orientation="h",
-            color="importance", color_continuous_scale=SEQ_SCALE,
-            template=PLOTLY_TEMPLATE,
-        )
-        fig.update_layout(
-            coloraxis_showscale=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-            height=420, xaxis_title="Importance", yaxis_title="",
-        )
-        st.plotly_chart(fig, width="stretch")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("#### Perbandingan Algoritma (5 Fold CV, dari notebook eksperimen)")
-    # Baris XGBoost (Tuned) dibaca dari metadata agar selalu sinkron
-    # dengan metric card R²/RMSE/MAE di atas — tidak hardcode lagi
-    comparison = pd.DataFrame([
-        {"Model": "XGBoost (Tuned) ✓", "Val R²": 0.7217, "Val RMSE ($)": 24940},
-        {"Model": "LightGBM (Tuned)", "Val R²": 0.7210, "Val RMSE ($)": 24969},
-        {"Model": "CatBoost", "Val R²": 0.7199, "Val RMSE ($)": 25037},
-        {"Model": "CatBoost (Tuned)", "Val R²": 0.7198, "Val RMSE ($)": 24993},
-        {"Model": "LightGBM", "Val R²": 0.7172, "Val RMSE ($)": 25079},
-        {"Model": "XGBoost (Default)", "Val R²": 0.7167, "Val RMSE ($)": 25065},
-        {"Model": "Ridge (Tuned)", "Val R²": 0.6778, "Val RMSE ($)": 26840},
-        {"Model": "Linear Regression", "Val R²": 0.6778, "Val RMSE ($)": 26840},
-    ])
-    fig = px.bar(
-        comparison.sort_values("Val R²"), x="Val R²", y="Model", orientation="h",
-        color="Val R²", color_continuous_scale=SEQ_SCALE, template=PLOTLY_TEMPLATE,
-        text="Val R²",
-    )
-    fig.update_traces(texttemplate="%{text:.4f}", textposition="outside")
-    fig.update_layout(
-        coloraxis_showscale=False, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        height=420, xaxis_range=[0.6, 0.78],
-    )
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "XGBoost (tuned) terpilih sebagai model final karena Val R² tertinggi dan RMSE terendah "
-        "di antara seluruh kandidat yang diuji (Linear/Ridge, XGBoost, LightGBM, CatBoost)"
-    )
-
 # PAGE: TENTANG PROYEK
 else:
     st.markdown("## ℹ️ Tentang Proyek")
