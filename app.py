@@ -311,8 +311,8 @@ st.sidebar.markdown(
     </div>
     <br>
     <div class="metric-card">
-        <div class="label">MAE Validasi</div>
-        <div class="value">$24940</div>
+        <div class="label">RMSE Validasi</div>
+        <div class="value">$24,940</div>
     </div>
     """,
     unsafe_allow_html=True,
